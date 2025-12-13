@@ -58,7 +58,7 @@ export async function clipboardHasImage(): Promise<boolean> {
       /«class PNGf»|TIFF picture|JPEG picture|GIF picture|«class JPEG»|«class TIFF»/;
     return imageRegex.test(stdout);
   } catch (error) {
-    debugLogger.warn('Error checking clipboard for image on Windows:', error);
+    debugLogger.warn('Error checking clipboard for image:', error);
     return false;
   }
 }
