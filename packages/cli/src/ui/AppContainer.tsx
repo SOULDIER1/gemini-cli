@@ -202,7 +202,10 @@ export const AppContainer = (props: AppContainerProps) => {
   );
 
   const [banner, setBanner] = useState<BannerData>({
-    bannerText: '',
+    bannerText: {
+      title: '',
+      body: '',
+    },
     isWarning: false,
   });
   const [bannerVisible, setBannerVisible] = useState(true);
@@ -1408,15 +1411,18 @@ Logging in with Google... Restarting Gemini CLI to continue.
     let isMounted = true;
 
     const fetchBannerTexts = async () => {
-      const [bannerTextUI] = await Promise.all([config.getEvent('CLI_BANNER')]);
+      const [bannerTextUI] = await Promise.all([config.getEvent()]);
 
       if (isMounted) {
         const bannerText =
           bannerTextUI !== undefined
-            ? bannerTextUI.campaignNotification.body
-            : '';
+            ? {
+                title: bannerTextUI.campaignNotification.title,
+                body: bannerTextUI.campaignNotification.body,
+              }
+            : { title: '', body: '' };
         const isWarning =
-          bannerTextUI?.campaignNotification.title === 'WARNING';
+          bannerTextUI?.campaignNotification?.action?.text === 'WARNING';
         setBanner({ bannerText, isWarning });
         setBannerVisible(true);
         const authType = config.getContentGeneratorConfig()?.authType;
@@ -1425,8 +1431,10 @@ Logging in with Google... Restarting Gemini CLI to continue.
           authType === AuthType.USE_VERTEX_AI
         ) {
           setBanner({
-            bannerText:
-              'Gemini 3 is now available.\nTo use Gemini 3, enable "Preview features" in /settings\nLearn more at https://goo.gle/enable-preview-features',
+            bannerText: {
+              title: 'Gemini 3 is now available.',
+              body: 'To use Gemini 3, enable "Preview features" in /settings\nLearn more at https://goo.gle/enable-preview-features',
+            },
             isWarning: false,
           });
         }

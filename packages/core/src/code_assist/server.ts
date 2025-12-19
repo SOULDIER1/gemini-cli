@@ -53,6 +53,8 @@ export interface HttpOptions {
 export const CODE_ASSIST_ENDPOINT = 'https://cloudcode-pa.googleapis.com';
 export const CODE_ASSIST_API_VERSION = 'v1internal';
 
+const METHOD_WITH_PARAMS = 'event:receive?client_type=GEMINI_CLI';
+
 export class CodeAssistServer implements ContentGenerator {
   constructor(
     readonly client: AuthClient,
@@ -179,7 +181,7 @@ export class CodeAssistServer implements ContentGenerator {
 
   async receiveEvents(): Promise<ReceiveEventsResponse> {
     const response: ReceiveEventsResponse =
-      await this.requestGet('event:receive');
+      await this.requestGet(METHOD_WITH_PARAMS);
     return response;
   }
 
@@ -262,7 +264,7 @@ export class CodeAssistServer implements ContentGenerator {
     const endpoint =
       process.env['CODE_ASSIST_ENDPOINT'] ?? CODE_ASSIST_ENDPOINT;
 
-    return method === 'event:receive'
+    return method === METHOD_WITH_PARAMS
       ? `${endpoint}/${CODE_ASSIST_API_VERSION}/${method}`
       : `${endpoint}/${CODE_ASSIST_API_VERSION}:${method}`;
   }
