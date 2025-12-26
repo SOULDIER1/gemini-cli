@@ -329,16 +329,14 @@ export interface ConfigParameters {
   modelConfigServiceConfig?: ModelConfigServiceConfig;
   enableHooks?: boolean;
   experiments?: Experiments;
-  hooks?:
-    | {
-        [K in HookEventName]?: HookDefinition[];
-      }
-    | ({
-        [K in HookEventName]?: HookDefinition[];
-      } & { disabled?: string[] });
+  hooks?: { [K in HookEventName]?: HookDefinition[] } & { disabled?: string[] };
+  projectHooks?: { [K in HookEventName]?: HookDefinition[] } & {
+    disabled?: string[];
+  };
   previewFeatures?: boolean;
   enableAgents?: boolean;
   experimentalJitContext?: boolean;
+  onModelChange?: (model: string) => void;
 }
 
 export class Config {
@@ -455,12 +453,16 @@ export class Config {
   private readonly hooks:
     | { [K in HookEventName]?: HookDefinition[] }
     | undefined;
+  private readonly projectHooks:
+    | ({ [K in HookEventName]?: HookDefinition[] } & { disabled?: string[] })
+    | undefined;
   private readonly disabledHooks: string[];
   private experiments: Experiments | undefined;
   private event: Event | undefined;
   private experimentsPromise: Promise<void> | undefined;
   private eventsPromise: Promise<void> | undefined;
   private hookSystem?: HookSystem;
+  private readonly onModelChange: ((model: string) => void) | undefined;
 
   private readonly enableAgents: boolean;
 
@@ -626,7 +628,9 @@ export class Config {
     this.retryFetchErrors = params.retryFetchErrors ?? false;
     this.disableYoloMode = params.disableYoloMode ?? false;
     this.hooks = params.hooks;
+    this.projectHooks = params.projectHooks;
     this.experiments = params.experiments;
+    this.onModelChange = params.onModelChange;
 
     if (params.contextFileName) {
       setGeminiMdFilename(params.contextFileName);
@@ -887,12 +891,15 @@ export class Config {
     return this.model;
   }
 
-  setModel(newModel: string): void {
+  setModel(newModel: string, isFallbackModel: boolean = false): void {
     if (this.model !== newModel || this._activeModel !== newModel) {
       this.model = newModel;
       // When the user explicitly sets a model, that becomes the active model.
       this._activeModel = newModel;
       coreEvents.emitModelChanged(newModel);
+      if (this.onModelChange && !isFallbackModel) {
+        this.onModelChange(newModel);
+      }
     }
     this.modelAvailabilityService.reset();
   }
@@ -1715,6 +1722,15 @@ export class Config {
    */
   getHooks(): { [K in HookEventName]?: HookDefinition[] } | undefined {
     return this.hooks;
+  }
+
+  /**
+   * Get project-specific hooks configuration
+   */
+  getProjectHooks():
+    | ({ [K in HookEventName]?: HookDefinition[] } & { disabled?: string[] })
+    | undefined {
+    return this.projectHooks;
   }
 
   /**
