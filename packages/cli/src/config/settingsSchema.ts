@@ -642,6 +642,68 @@ const SETTINGS_SCHEMA = {
     ref: 'TelemetrySettings',
   },
 
+  browserAgentSettings: {
+    type: 'object',
+    label: 'Browser Agent',
+    category: 'Browser',
+    requiresRestart: true,
+    default: {},
+    description: 'Settings for the Browser Agent.',
+    showInDialog: false,
+    properties: {
+      enabled: {
+        type: 'boolean',
+        label: 'Enable Browser Agent',
+        category: 'Browser',
+        requiresRestart: true,
+        default: true,
+        description: 'Enable the browser agent capability.',
+        showInDialog: true,
+      },
+      headless: {
+        type: 'boolean',
+        label: 'Headless Mode',
+        category: 'Browser',
+        requiresRestart: true,
+        default: false,
+        description: 'Run the browser in headless mode (no visible UI).',
+        showInDialog: true,
+      },
+      executionMode: {
+        type: 'enum',
+        label: 'Execution Mode',
+        category: 'Browser',
+        requiresRestart: true,
+        default: 'launch',
+        description:
+          'How to start the browser (launch new instance or attach to existing).',
+        showInDialog: true,
+        options: [
+          { value: 'launch', label: 'Launch' },
+          { value: 'attach', label: 'Attach' },
+        ],
+      },
+      chromeProfile: {
+        type: 'string',
+        label: 'Chrome Profile',
+        category: 'Browser',
+        requiresRestart: true,
+        default: undefined as string | undefined,
+        description: 'Path to Chrome profile or "default".',
+        showInDialog: true,
+      },
+      model: {
+        type: 'string',
+        label: 'Browser Model',
+        category: 'Browser',
+        requiresRestart: false,
+        default: undefined as string | undefined,
+        description: 'Specific model to use for browser agent tasks.',
+        showInDialog: true,
+      },
+    },
+  },
+
   model: {
     type: 'object',
     label: 'Model',

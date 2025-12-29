@@ -152,7 +152,7 @@ export class BrowserTools {
     const page = await this.browserManager.getPage();
     try {
       // Model sends coordinates in 0-1000 range, scale to viewport
-      const viewport = page.viewportSize();
+      const viewport = await this.getViewportSize();
       if (!viewport) {
         return { error: 'Viewport not available' };
       }
@@ -211,7 +211,7 @@ export class BrowserTools {
     const page = await this.browserManager.getPage();
     try {
       // Model sends coordinates in 0-1000 range, scale to viewport
-      const viewport = page.viewportSize();
+      const viewport = await this.getViewportSize();
       if (!viewport) {
         return { error: 'Viewport not available' };
       }
@@ -234,7 +234,15 @@ export class BrowserTools {
   // Make sure we expose viewport size helper if needed by Agent
   async getViewportSize(): Promise<{ width: number; height: number } | null> {
     const page = await this.browserManager.getPage();
-    return page.viewportSize();
+    const viewport = page.viewportSize();
+    if (viewport) {
+      return viewport;
+    }
+    // Fallback: if viewport is null, get window dimensions
+    return page.evaluate(() => ({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }));
   }
 
   async openWebBrowser(): Promise<ToolResult> {
@@ -269,7 +277,7 @@ export class BrowserTools {
     // Use mouse wheel to scroll, which works on scrollable containers (divs)
     // unlike window.scrollBy which only works on the main document.
     // Move mouse to center first to ensure we scroll the main content.
-    const viewport = page.viewportSize();
+    const viewport = await this.getViewportSize();
     if (viewport) {
       await page.mouse.move(viewport.width / 2, viewport.height / 2);
     }

@@ -78,7 +78,7 @@ export class BrowserManager {
     });
 
     const context = await this.browser.newContext({
-      viewport: null, // Let window size dictate viewport. Explicit viewport causes "Viewport not available" on resize.
+      viewport: null, // Let window size dictate viewport. Fallback handles dimension retrieval.
     });
     this.page = await context.newPage();
 

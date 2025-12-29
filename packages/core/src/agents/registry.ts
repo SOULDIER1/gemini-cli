@@ -149,7 +149,9 @@ export class AgentRegistry {
       debugLogger.log('[AgentRegistry] Registering Browser Agent');
       this.registerAgent(BrowserAgentDefinition);
     } else {
-      debugLogger.log('[AgentRegistry] Agents not enabled, skipping Browser Agent registration');
+      debugLogger.log(
+        '[AgentRegistry] Agents not enabled, skipping Browser Agent registration',
+      );
     }
   }
 

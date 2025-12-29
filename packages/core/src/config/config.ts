@@ -139,6 +139,15 @@ export interface IntrospectionAgentSettings {
   enabled?: boolean;
 }
 
+export interface BrowserAgentSettings {
+  enabled?: boolean;
+  chromeProfile?: string; // Path or 'default'
+  executionMode?: 'launch' | 'attach'; // 'launch' new instance or 'attach' to existing
+  headless?: boolean;
+  model?: string;
+  visualModel?: string;
+}
+
 /**
  * All information required in CLI to handle an extension. Defined in Core so
  * that the collection of loaded, active, and inactive extensions can be passed
@@ -336,6 +345,7 @@ export interface ConfigParameters {
   enableAgents?: boolean;
   experimentalJitContext?: boolean;
   onModelChange?: (model: string) => void;
+  browserAgentSettings?: BrowserAgentSettings;
 }
 
 export class Config {
@@ -440,6 +450,7 @@ export class Config {
   private readonly enableMessageBusIntegration: boolean;
   private readonly codebaseInvestigatorSettings: CodebaseInvestigatorSettings;
   private readonly introspectionAgentSettings: IntrospectionAgentSettings;
+  readonly browserAgentSettings: BrowserAgentSettings;
   private readonly continueOnFailedApiCall: boolean;
   private readonly retryFetchErrors: boolean;
   private readonly enableShellOutputEfficiency: boolean;
@@ -600,6 +611,19 @@ export class Config {
     };
     this.introspectionAgentSettings = {
       enabled: params.introspectionAgentSettings?.enabled ?? false,
+    };
+    this.browserAgentSettings = {
+      // Default to true if not specified, similar to other agents? Or should it be false? The plan implied adding settings, let's stick to params or defaults.
+      // Actually, for a new feature, maybe default to user preference.
+      // But looking at existing patterns:
+      // params.browserAgentSettings?.enabled ?? true;
+      // Let's use helpful defaults for now.
+      enabled: params.browserAgentSettings?.enabled ?? true,
+      chromeProfile: params.browserAgentSettings?.chromeProfile,
+      executionMode: params.browserAgentSettings?.executionMode ?? 'launch',
+      headless: params.browserAgentSettings?.headless ?? false,
+      model: params.browserAgentSettings?.model,
+      visualModel: params.browserAgentSettings?.visualModel,
     };
     this.continueOnFailedApiCall = params.continueOnFailedApiCall ?? true;
     this.enableShellOutputEfficiency =

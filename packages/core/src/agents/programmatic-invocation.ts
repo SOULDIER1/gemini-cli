@@ -5,11 +5,8 @@
  */
 
 import type { Config } from '../config/config.js';
-import { BaseToolInvocation, type ToolResult } from '../tools/tools.js';
-import type {
-  ProgrammaticAgentDefinition,
-  AgentInputs,
-} from './types.js';
+import { BaseToolInvocation, type ToolResult, isTool } from '../tools/tools.js';
+import type { ProgrammaticAgentDefinition, AgentInputs } from './types.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import type { AnsiOutput } from '../utils/terminalSerializer.js';
 
@@ -43,13 +40,13 @@ export class ProgrammaticAgentInvocation extends BaseToolInvocation<
       );
     }
 
-    // Assume the tool accepts the same parameters as the agent
-    // We create the invocation manually
-    const invocation = (tool as any).createInvocation(
-      this.params,
-      this.messageBus,
-    );
+    if (isTool(tool)) {
+      const invocation = tool.build(this.params);
+      return invocation.execute(signal, updateOutput);
+    }
 
-    return invocation.execute(signal, updateOutput);
+    throw new Error(
+      `Tool '${this.definition.toolName}' is not a valid declarative tool`,
+    );
   }
 }

@@ -97,11 +97,21 @@ export class GeminiClient {
     this.updateTelemetryTokenCount();
   }
 
-  private getContentGeneratorOrFail(): ContentGenerator {
+  /**
+   * Returns the ContentGenerator, throwing if not initialized.
+   */
+  getContentGeneratorOrFail(): ContentGenerator {
     if (!this.config.getContentGenerator()) {
       throw new Error('Content generator not initialized');
     }
     return this.config.getContentGenerator();
+  }
+
+  /**
+   * Returns the Config object.
+   */
+  getConfig(): Config {
+    return this.config;
   }
 
   async addHistory(content: Content) {

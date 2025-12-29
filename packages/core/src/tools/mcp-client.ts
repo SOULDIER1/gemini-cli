@@ -27,9 +27,11 @@ import {
   ListResourcesResultSchema,
   ListRootsRequestSchema,
   ReadResourceResultSchema,
+  CallToolResultSchema,
   ResourceListChangedNotificationSchema,
   ToolListChangedNotificationSchema,
   type Tool as McpTool,
+  type CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import { parse } from 'shell-quote';
 import type { Config, MCPServerConfig } from '../config/config.js';
@@ -268,6 +270,23 @@ export class McpClient {
         params: { uri },
       },
       ReadResourceResultSchema,
+    );
+  }
+
+  async callTool(
+    name: string,
+    args: Record<string, unknown> = {},
+  ): Promise<CallToolResult> {
+    this.assertConnected();
+    return this.client!.request(
+      {
+        method: 'tools/call',
+        params: {
+          name,
+          arguments: args,
+        },
+      },
+      CallToolResultSchema,
     );
   }
 
